@@ -1,0 +1,24 @@
+    {
+        "sidebar": {
+            "home": "首页",
+            "servers": "服务器",
+            "activity": "活动",
+            "payment": "支付",
+            "shop": "商店",
+            "settings": "设置",
+            "admin": "管理员"
+        },
+
+        "auth": {
+            "login": "登录",
+            "google": "使用 Google 登录",
+            "welcome": "欢迎",
+            "register": "注册",
+            "logout": "退出登录"
+        },
+
+        "home": {
+            "home_title": "管理面板",
+            "home_description": "管理您的虚拟环境"
+        }
+    }

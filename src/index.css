@@ -1,0 +1,173 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.btn {
+  display: inline-block;
+  font-weight: 600;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: middle;
+  user-select: none;
+  border: 1px solid transparent;
+  padding: 0.5rem 1rem;
+  font-size: 1.1rem;
+  line-height: 1.5;
+  border-radius: 0.25rem;
+  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.px-4 {
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.py-2 {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+.rounded-md {
+  border-radius: 0.375rem;
+}
+
+.bg-black {
+  background-color: #000000; /* True black */
+}
+
+.text-white {
+  color: #ffffff;
+}
+
+button.px-4.py-2.rounded-md.bg-black.text-white {
+  background: linear-gradient(90deg, #000000 0%, #000000 100%);
+  color: #0051ff;
+  box-shadow: 0 4px 6px rgba(255, 255, 255, 0.1); /* Slight shadow for depth */
+  transition: background 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+button.px-4.py-2.rounded-md.bg-black.text-white:hover {
+  background: linear-gradient(90deg, #1c1c1c 0%, #1c1c1c 100%); /* Dark gray on hover */
+  box-shadow: 0 6px 8px rgba(255, 255, 255, 0.15); /* Slightly larger shadow */
+}
+
+.btn-primary {
+  color: #fff;
+  background-color: #007bff;
+  border-color: #007bff;
+}
+
+.btn-primary:hover {
+  color: #fff;
+  background-color: #0056b3;
+  border-color: #004085;
+  box-shadow: 0 6px 8px rgba(255, 255, 255, 0.15);
+}
+
+.flex {
+  display: flex;
+}
+
+.h-screen {
+  height: 100vh;
+}
+
+.bg-black {
+  background-color: #000000; /* True black */
+}
+
+.text-white {
+  color: #fff;
+}
+
+.flex-1 {
+  flex: 1;
+}
+
+.p-8 {
+  padding: 2rem;
+}
+
+.rounded-tl-lg {
+  border-top-left-radius: 0.5rem;
+}
+
+.overflow-y-auto {
+  overflow-y: auto;
+}
+
+.container {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.mx-auto {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.p-4 {
+  padding: 1rem;
+}
+
+.bg-black {
+  background-color: #000000; /* True black */
+}
+
+.shadow-md {
+  box-shadow: 0 4px 6px rgba(255, 255, 255, 0.1); /* Light shadow */
+}
+
+.rounded-md {
+  border-radius: 0.375rem;
+}
+
+.text-lg {
+  font-size: 1.125rem;
+}
+
+.font-semibold {
+  font-weight: 600;
+}
+
+.mb-4 {
+  margin-bottom: 1rem;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.mr-2 {
+  margin-right: 0.5rem;
+}
+
+.bg-green-600 {
+  background-color: #38a169;
+}
+
+.bg-red-600 {
+  background-color: #e53e3e;
+}
+
+.text-xl {
+  font-size: 1.25rem;
+}
+
+/* Example styles for settings borders */
+.settings-panel {
+  border: 1px solid #2d3748; /* Light gray border */
+  border-radius: 0.375rem; /* Rounded corners */
+  padding: 1rem;
+  box-shadow: 0 2px 4px rgba(255, 255, 255, 0.1); /* Light shadow */
+}
+
+/* Enhanced border styles for better appearance */
+.settings-panel {
+  border: 1px solid #4a5568; /* Slightly lighter gray */
+  border-radius: 0.5rem; /* More rounded corners */
+  padding: 1.5rem; /* More padding */
+  box-shadow: 0 4px 8px rgba(255, 255, 255, 0.1); /* Larger shadow */
+}

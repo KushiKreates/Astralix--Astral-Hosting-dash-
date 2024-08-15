@@ -1,0 +1,24 @@
+{
+    "sidebar": {
+    "home": "Home",
+    "servers": "Servers",
+    "activity": "Activity",
+    "payment": "Payment",
+    "shop": "Shop",
+    "settings": "Settings",
+    "admin": "Admin"
+    },
+
+    "auth": {
+    "login": "Login",
+    "google": "Sign in with Google",
+    "welcome": "Welcome",
+    "register": "Register",
+    "logout": "Logout"
+    },
+
+    "home": {
+    "home_title": "Admin Panel",
+    "home_description": "Manage Your Virtual Environments"
+    }
+  }

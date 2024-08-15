@@ -1,0 +1,24 @@
+{
+    "sidebar": {
+        "home": "Kezdőlap",
+        "servers": "Szerverek",
+        "activity": "Tevékenységek",
+        "payment": "Számlák",
+        "shop": "Bolt",
+        "settings": "Beállítások",
+        "admin": "Admin"
+    },
+
+    "auth": {
+        "login": "Bejelentkezés",
+        "google": "Bejelentkezés Google-lal",
+        "welcome": "Üdvözöljük",
+        "register": "Regisztráció",
+        "logout": "Kijelentkezés"
+    },
+
+    "home": {
+        "home_title": "Adminisztrációs Panel",
+        "home_description": "Kezelje virtuális környezeteit"
+    }
+}

@@ -1,0 +1,14 @@
+{
+    "sidebar": {
+    "welcome": "Welcome",
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout",
+    "home": "Home",
+    "payment": "Payment",
+    "servers": "Servers",
+    "settings": "Settings",
+    "shop": "Shop",
+    "admin": "Admin"
+    }
+  }

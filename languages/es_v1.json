@@ -1,0 +1,24 @@
+{
+    "sidebar": {
+        "home": "Inicio",
+        "servers": "Servidores",
+        "activity": "Actividad",
+        "payment": "Pago",
+        "shop": "Tienda",
+        "settings": "Configuración",
+        "admin": "Administrador"
+    },
+
+    "auth": {
+        "login": "Iniciar sesión",
+        "google": "Iniciar sesión con Google",
+        "welcome": "Bienvenido",
+        "register": "Registrarse",
+        "logout": "Cerrar sesión"
+    },
+
+    "home": {
+        "home_title": "Panel de administración",
+        "home_description": "Gestiona tus entornos virtuales"
+    }
+}

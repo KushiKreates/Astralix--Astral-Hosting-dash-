@@ -1,2 +1,1 @@
-# Astralix-(Astral-Hosting dash)
- The better Dashboard, Clowngpt down!
+# Astral-Axis dash beta, For personal use this is free! For buisness use cost money :wink:

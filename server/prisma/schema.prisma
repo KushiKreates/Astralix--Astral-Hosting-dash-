@@ -1,0 +1,71 @@
+
+datasource db {
+  provider = "postgresql" // or your preferred database
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id              Int       @id @default(autoincrement())
+  email           String    @unique
+  password        String
+  settings        Settings?
+  role            Role      @default(NORMAL)
+  banned          Boolean   @default(false)
+  banInfo         BanInfo[]
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  admin           Boolean   @default(false)
+  containers      Container[]
+}
+
+
+model BanInfo {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  ip          String
+  fingerprint String
+  cookie      String
+  reason      String?
+  user        User     @relation(fields: [userId], references: [id])
+}
+
+model Container {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  type      ContainerType
+  user      User     @relation(fields: [userId], references: [id])
+  settings  Settings? @relation(fields: [settingsId], references: [id])
+  settingsId Int?
+}
+
+model Settings {
+  id                  Int      @id @default(autoincrement())
+  userId              Int      @unique
+  user                User     @relation(fields: [userId], references: [id])
+  credits             Int      @default(0)
+  assignedContainers  Container[]
+  dedicatedIps        Int      @default(0)
+  maxStorage          Int      @default(10)
+  sshPort             Int
+  maxCpuUsage         Int      @default(1)
+  maxBandwidth        Int      @default(10)
+  cloudIDEAccess      Boolean  @default(false)
+  email               String
+  password            String
+}
+
+enum Role {
+  TRIAL
+  NORMAL
+  PREMIUM
+}
+
+enum ContainerType {
+  SMALL
+  MEDIUM
+  LARGE
+}

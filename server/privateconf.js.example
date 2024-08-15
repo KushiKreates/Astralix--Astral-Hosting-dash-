@@ -1,0 +1,5 @@
+//just add the token and rename the file to privateconf.js
+ var   PROXMOX_API_URL =  'http://81.169.237.72:8006/api2/json';
+ var   PROXMOX_TOKEN =  'API@pve!replaceme=00000000-0000-0000-0000-000000000000';
+
+ module.exports = {PROXMOX_API_URL,PROXMOX_TOKEN}; // add variables to export dont remove this line
