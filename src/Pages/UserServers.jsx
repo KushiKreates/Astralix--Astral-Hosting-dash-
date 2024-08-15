@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../firebase';
-import { FaServer, FaMemory, FaMicrochip, FaGoogleDrive, FaTools } from 'react-icons/fa';
+import { FaServer, FaMemory, FaMicrochip, FaGoogleDrive, FaTools, FaTrashAlt } from 'react-icons/fa';
 
 const UserServers = () => {
   const [servers, setServers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedServer, setSelectedServer] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchUserAndServers = async () => {
@@ -42,6 +44,35 @@ const UserServers = () => {
 
     fetchUserAndServers();
   }, []);
+
+  const handleDelete = async (serverId) => {
+    try {
+      const response = await fetch(`/api/delete-server/${serverId}`, {
+        method: 'GET',
+      });
+
+      if (response.ok) {
+        setServers(servers.filter(server => server.attributes.id !== serverId));
+      } else {
+        setError('Failed to delete server');
+      }
+    } catch (error) {
+      console.error('Error deleting server', error);
+      setError('Error deleting server');
+    } finally {
+      setIsModalOpen(false);
+    }
+  };
+
+  const openModal = (server) => {
+    setSelectedServer(server);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setSelectedServer(null);
+    setIsModalOpen(false);
+  };
 
   if (loading) {
     return <div className="text-center text-gray-400">Loading...</div>;
@@ -89,7 +120,7 @@ const UserServers = () => {
               <p><strong>Created At:</strong> {new Date(server.attributes.created_at).toLocaleDateString()}</p>
               <p><strong>Updated At:</strong> {new Date(server.attributes.updated_at).toLocaleDateString()}</p>
             </div>
-            <div className="flex justify-end mt-4">
+            <div className="flex justify-between mt-4">
               <a
                 href={`https://panel.astralaxis.one/server/${server.attributes.container.environment.P_SERVER_UUID}`}
                 className="flex items-center px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
@@ -99,10 +130,40 @@ const UserServers = () => {
                 <FaTools className="mr-2" />
                 Manage
               </a>
+              <button
+                onClick={() => openModal(server)}
+                className="flex items-center px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
+              >
+                <FaTrashAlt className="mr-2" />
+                Delete
+              </button>
             </div>
           </div>
         </div>
       ))}
+
+      {isModalOpen && selectedServer && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 w-128">
+          <div className="bg-gray-700 p-6 rounded-lg shadow-lg max-w-md w-128">
+            <h2 className="text-xl font-bold mb-4">Confirm Deletion</h2>
+            <p>Are you sure you want to delete the server <strong>{selectedServer.attributes.name}</strong>?</p>
+            <div className="flex justify-end mt-4">
+              <button
+                onClick={closeModal}
+                className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 mr-2"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleDelete(selectedServer.attributes.id)}
+                className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

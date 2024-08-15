@@ -67,7 +67,7 @@ const SideBar = () => {
   return (
     <aside className="flex flex-col w-64 bg-gray-900 text-white h-200">
       <div className="flex items-center justify-center h-16 mb-8">
-        <img src="/logo.svg" alt="Neko-Astral Logo" className="w-12 h-12" />
+        <img src="/yuki.jpeg" alt="Neko-Astral Logo" className="w-12 h-12" />
       </div>
       <nav className="flex-1 space-y-4 sidebar-animation">
         <a href="/" className="flex items-center px-4 py-2 space-x-2 rounded-md hover:bg-gray-700">

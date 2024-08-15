@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { getFirestore, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+import { getFirestore, doc, getDoc, updateDoc } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import axios from 'axios';
 import { MdClose, MdError } from 'react-icons/md';
-import { FaCheckCircle } from 'react-icons/fa'; // Import success icon
+import { FaCheckCircle, FaSpinner } from 'react-icons/fa';
 import anime from 'animejs';
 
 const CreateServer = () => {
@@ -19,7 +19,7 @@ const CreateServer = () => {
   const [userPaidEggs, setUserPaidEggs] = useState([]);
   const [selectedResources, setSelectedResources] = useState({
     cpu: 0,
-    ram: 10,
+    ram: 0,
     disk: 0,
     backup: 0,
   });
@@ -41,8 +41,9 @@ const CreateServer = () => {
             disk: data.disk || 0,
             backup: data.backup || 0,
             slots: data.slots || 0,
+            Serversinfo: data.Serversinfo || [], // Initialize Serversinfo if not present
           });
-          setUserPaidEggs(data.paideggs || []); // Fetch the paid egg IDs
+          setUserPaidEggs(data.paideggs || []);
         } else {
           setError('User document does not exist');
         }
@@ -67,25 +68,26 @@ const CreateServer = () => {
       setError('Error fetching eggs data');
     }
   };
+
   const handleCreateServer = async () => {
     setCreating(true);
     setLoading(true);
-  
+
     const auth = getAuth();
     const user = auth.currentUser;
-  
+
     if (user && selectedEgg) {
       try {
         const userDoc = await getDoc(doc(getFirestore(), 'users', user.uid));
-  
+
         if (userDoc.exists()) {
           const data = userDoc.data();
           const egg = [...freeEggs, ...paidEggs].find(e => e.id === selectedEgg);
-  
+
           if (egg) {
             const isPaidEgg = paidEggs.some(e => e.id === selectedEgg);
             const ownsPaidEgg = isPaidEgg && userPaidEggs.includes(selectedEgg);
-  
+
             if (isPaidEgg && !ownsPaidEgg) {
               setError('⚠️ You don\'t have this egg! Buy it at the shop');
               setShowModal(true);
@@ -93,55 +95,74 @@ const CreateServer = () => {
               setLoading(false);
               return;
             }
-  
+
             const { cpu, ram, disk, backup } = selectedResources;
-            if (cpu <= 0 || ram <= 0 || disk <= 0 || backup <= 0) {
-              setError('⚠️ All resource values must be greater than zero');
+
+            // Check if user has enough resources
+            if (
+              data.cpu < cpu ||
+              data.ram < ram ||
+              data.disk < disk ||
+              data.slots <= 0
+            ) {
+              setError('⚠️ You do not have enough resources or server slots available');
               setShowModal(true);
               setCreating(false);
               setLoading(false);
               return;
             }
-  
+
             const payload = {
               name: serverName,
+              cpu_limit: cpu,
               user_id: data.petro, // Fetch user_id from Firestore document
               nest_id: isPaidEgg ? 8 : 9,
               egg_id: selectedEgg,
-              memory_limit: Math.floor(ram / 2),
-              swap_limit: Math.floor(ram / 2),
+              memory_limit: ram,
+              swap_limit: 0,
               backup_limit: backup,
               disk_limit: disk,
               location_ids: [1],
             };
-  
+
+            console.log('Creating server with payload:', payload);
+
             const response = await axios.post('https://servers.astralaxis.one/create/', payload);
-  
+
             setLoading(false);
-  
-            // Extract status from the response with safety checks
-            const responseData = response.data || {};
-            const status = responseData.data?.status;
-  
-            if (status === 'success') {
-              await setDoc(doc(getFirestore(), 'used_resources', responseData.data.attributes.uuid), {
-                cpu: cpu,
-                ram: ram,
-                disk: disk,
-                backup: backup,
-              });
-  
-              await updateDoc(doc(getFirestore(), 'users', user.uid), {
-                slots: data.slots - 1,
-              });
-  
+
+            if (response.status === 201) {
               setSuccessMessage('Server created successfully!');
               setShowSuccessModal(true);
-  
-              // Reset form fields
-              setServerName('');
-              setSelectedEgg('');
-              setSelectedResources({ cpu: 0, ram: 10, disk: 0, backup: 0 });
+
+              // Animate success checkmark
+              anime({
+                targets: '.success-checkmark',
+                scale: [0, 1],
+                opacity: [0, 1],
+                duration: 1000,
+                easing: 'easeOutElastic(1, .8)',
+              });
+
+              // Update user resources in Firestore
+              await updateDoc(doc(getFirestore(), 'users', user.uid), {
+                cpu: data.cpu - cpu,
+                ram: data.ram - ram,
+                disk: data.disk - disk,
+                slots: data.slots - 1,
+                Serversinfo: [...data.Serversinfo, {
+                  name: serverName,
+                  cpu,
+                  ram,
+                  disk,
+                  backup,
+                  egg_id: selectedEgg,
+                }]
+              });
+
+              setTimeout(() => {
+                window.location.reload();
+              }, 2000);
             } else {
               setError('Failed to create server');
               setShowModal(true);
@@ -163,12 +184,9 @@ const CreateServer = () => {
       setError('User is not authenticated or no egg selected');
       setShowModal(true);
     }
-  
+
     setCreating(false);
   };
-  
-  
-  
 
   useEffect(() => {
     const fetchData = async () => {
@@ -184,6 +202,18 @@ const CreateServer = () => {
     setShowModal(false);
     setError(null);
   };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen text-gray-500">
+        <div className="flex flex-col items-center">
+          <p className="mb-4 font-bold text-3xl">Loading....</p>
+          <p className="mb-4 font-semibold">Dashboard is created by Kushi_k (Nadhila)</p>
+          <FaSpinner className="animate-spin text-green-500" size={50} />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-lg mx-auto p-6 bg-white rounded-lg shadow-lg">
@@ -225,11 +255,10 @@ const CreateServer = () => {
               setSelectedResources((prev) => ({ ...prev, cpu: +e.target.value }))
             }
             className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-blue-200 text-black"
-            placeholder="Enter CPU"
           />
         </div>
         <div className="mb-2">
-          <label className="block text-gray-700">RAM (MB):</label>
+          <label className="block text-gray-700">RAM:</label>
           <input
             type="number"
             min="0"
@@ -238,11 +267,10 @@ const CreateServer = () => {
               setSelectedResources((prev) => ({ ...prev, ram: +e.target.value }))
             }
             className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-blue-200 text-black"
-            placeholder="Enter RAM"
           />
         </div>
         <div className="mb-2">
-          <label className="block text-gray-700">Disk (GB):</label>
+          <label className="block text-gray-700">Disk:</label>
           <input
             type="number"
             min="0"
@@ -251,11 +279,10 @@ const CreateServer = () => {
               setSelectedResources((prev) => ({ ...prev, disk: +e.target.value }))
             }
             className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-blue-200 text-black"
-            placeholder="Enter Disk"
           />
         </div>
         <div className="mb-2">
-          <label className="block text-gray-700">Backup (GB):</label>
+          <label className="block text-gray-700">Backup:</label>
           <input
             type="number"
             min="0"
@@ -264,29 +291,25 @@ const CreateServer = () => {
               setSelectedResources((prev) => ({ ...prev, backup: +e.target.value }))
             }
             className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-blue-200 text-black"
-            placeholder="Enter Backup"
           />
         </div>
       </div>
       <button
         onClick={handleCreateServer}
-        className="w-full py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none"
         disabled={creating}
+        className="w-full p-3 bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-600 transition duration-300"
       >
-        {creating ? 'Creating...' : 'Create Server'}
+        {creating ? <FaSpinner className="animate-spin inline-block mr-2" /> : 'Create Server'}
       </button>
 
-      {/* Error Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-          <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm mx-4">
-            <div className="flex items-center">
-              <MdError className="text-red-500 text-2xl mr-3" />
-              <p className="text-red-500">{error}</p>
-            </div>
+        <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg text-center">
+            <MdError className="text-red-500 mb-4" size={50} />
+            <p className="text-lg text-gray-700">{error}</p>
             <button
               onClick={closeModal}
-              className="mt-4 py-2 px-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none"
+              className="mt-6 px-6 py-3 bg-red-500 text-white rounded-lg font-semibold hover:bg-red-600 transition duration-300"
             >
               Close
             </button>
@@ -294,18 +317,11 @@ const CreateServer = () => {
         </div>
       )}
 
-      {/* Success Modal */}
       {showSuccessModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-          <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm mx-4 text-center">
-            <FaCheckCircle className="text-green-500 text-4xl mb-4 success-checkmark" />
-            <p className="text-green-500 font-semibold">{successMessage}</p>
-            <button
-              onClick={() => setShowSuccessModal(false)}
-              className="mt-4 py-2 px-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none"
-            >
-              Close
-            </button>
+        <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg text-center">
+            <FaCheckCircle className="text-green-500 mb-4 success-checkmark" size={50} />
+            <p className="text-lg text-gray-700">{successMessage}</p>
           </div>
         </div>
       )}
