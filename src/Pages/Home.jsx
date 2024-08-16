@@ -10,7 +10,7 @@ const Home = () => {
   useEffect(() => {
     const fetchServerStatus = async () => {
       try {
-        const response = await axios.get('https://test.manikineko.nl/node/status');
+        const response = await axios.get('https://image.astralaxis.tech/status');
         setServerStatus(response.data.status);
       } catch (error) {
         console.error('Error fetching server status:', error);

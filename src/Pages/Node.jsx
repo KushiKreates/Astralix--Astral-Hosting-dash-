@@ -10,7 +10,7 @@ const Node = () => {
   useEffect(() => {
     const fetchNodeStatus = async () => {
       try {
-        const response = await axios.get('/api/status');
+        const response = await axios.get('https://image.astralaxis.tech/status');
         setNodeStatus(response.data.status);
         setLoading(false); // Set loading to false once data is fetched
       } catch (error) {

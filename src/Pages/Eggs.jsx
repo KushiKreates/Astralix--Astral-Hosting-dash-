@@ -22,7 +22,7 @@ const EggsDisplay = () => {
   useEffect(() => {
     const fetchEggsData = async () => {
       try {
-        const response = await fetch('/api/paid/eggs');
+        const response = await fetch('https://image.astralaxis.tech/paid/eggs');
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
@@ -275,7 +275,7 @@ const EggsDisplay = () => {
                 Close
               </button>
               <button
-                onClick={() => window.open('https://discord.gg/your-server-invite', '_blank')}
+                onClick={() => window.open('https://discord.gg/5UDGBjX6fs', '_blank')}
                 className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
               >
                 Join Discord

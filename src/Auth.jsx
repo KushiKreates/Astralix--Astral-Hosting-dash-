@@ -62,7 +62,7 @@ const createUserDocument = async (user) => {
     
     // Step 1: Create the Petrodactyl user
     const petrodactylResponse = await createPetrodactylUser(user.email, username, firstName, lastName, password);
-    const petrodactylUserId = petrodactylResponse.attributes.id;
+    const petrodactylUserId = petrodactylResponse.data.attributes.id;
 
     // Log the response and Petrodactyl ID
     console.log(`Petrodactyl user created with ID: ${petrodactylUserId}`);
@@ -75,12 +75,12 @@ const createUserDocument = async (user) => {
       isBan: false,
       createdAt: new Date(),
       isPaid: false, // New field indicating if the user has a paid plan
-      slots: 0,     // New field for number of slots
-      cpu: 0,       // New field for CPU count
-      ram: 0,       // New field for RAM in MB
+      slots: 1,     // New field for number of slots
+      cpu: 40,       // New field for CPU count
+      ram: 512,       // New field for RAM in MB
       db: 0,        // New field for database amount
       port: 0,
-      disk: 0,
+      disk: 2048,
       etc: 0, 
       coins: 0,     // New field for ports
       Convoy: [],   // Existing field

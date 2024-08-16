@@ -1,7 +1,8 @@
 import axios from 'axios';
 
 // Define the base URL for your Flask API
-const FLASK_API_URL = '/api';
+const FLASK_API_URL = 'https://image.astralaxis.tech';
+const FLASK_API_URL2 = ' https://servers.astralaxis.one/user';
 
 // Create an Axios instance for Flask API
 const api = axios.create({
@@ -11,10 +12,17 @@ const api = axios.create({
   },
 });
 
+const api2 = axios.create({
+  baseURL: FLASK_API_URL2,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
 // Function to create a user via Flask API
 export const createPetrodactylUser = async (email, username, firstName, lastName, password) => {
   try {
-    const response = await api.post('/create', {
+    const response = await api2.post('/create', {
       email,
       username,
       firstName,

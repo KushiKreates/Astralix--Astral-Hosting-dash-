@@ -58,8 +58,8 @@ const CreateServer = () => {
   const fetchEggs = async () => {
     try {
       const [freeResponse, paidResponse] = await Promise.all([
-        axios.get('/api/free/eggs'),
-        axios.get('/api/paid/eggs'),
+        axios.get('https://image.astralaxis.tech/free/eggs'),
+        axios.get('https://image.astralaxis.tech/paid/eggs'),
       ]);
 
       setFreeEggs(freeResponse.data.eggs || []);
@@ -78,6 +78,16 @@ const CreateServer = () => {
 
     if (user && selectedEgg) {
       try {
+        // Validation: Check if any resource value is 0
+        const { cpu, ram, disk, backup } = selectedResources;
+        if (cpu <= 1 || ram <= 1 || disk <= 1 || backup < 0) {
+          setError('⚠️ You can\'t create the server with 0 or negative resource values');
+          setShowModal(true);
+          setCreating(false);
+          setLoading(false);
+          return;
+        }
+
         const userDoc = await getDoc(doc(getFirestore(), 'users', user.uid));
 
         if (userDoc.exists()) {
@@ -95,8 +105,6 @@ const CreateServer = () => {
               setLoading(false);
               return;
             }
-
-            const { cpu, ram, disk, backup } = selectedResources;
 
             // Check if user has enough resources
             if (
@@ -209,7 +217,7 @@ const CreateServer = () => {
         <div className="flex flex-col items-center">
           <p className="mb-4 font-bold text-3xl">Loading....</p>
           <p className="mb-4 font-semibold">Dashboard is created by Kushi_k (Nadhila)</p>
-          <FaSpinner className="animate-spin text-green-500" size={50} />
+          <FaSpinner className="animate-spin text-green-500" size={100} />
         </div>
       </div>
     );
@@ -244,84 +252,69 @@ const CreateServer = () => {
         </select>
       </div>
       <div className="mb-4">
-        <label className="block text-gray-700 font-medium mb-2">Resources:</label>
-        <div className="mb-2">
-          <label className="block text-gray-700">CPU:</label>
-          <input
-            type="number"
-            min="0"
-            value={selectedResources.cpu}
-            onChange={(e) =>
-              setSelectedResources((prev) => ({ ...prev, cpu: +e.target.value }))
-            }
-            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-blue-200 text-black"
-          />
-        </div>
-        <div className="mb-2">
-          <label className="block text-gray-700">RAM:</label>
-          <input
-            type="number"
-            min="0"
-            value={selectedResources.ram}
-            onChange={(e) =>
-              setSelectedResources((prev) => ({ ...prev, ram: +e.target.value }))
-            }
-            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-blue-200 text-black"
-          />
-        </div>
-        <div className="mb-2">
-          <label className="block text-gray-700">Disk:</label>
-          <input
-            type="number"
-            min="0"
-            value={selectedResources.disk}
-            onChange={(e) =>
-              setSelectedResources((prev) => ({ ...prev, disk: +e.target.value }))
-            }
-            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-blue-200 text-black"
-          />
-        </div>
-        <div className="mb-2">
-          <label className="block text-gray-700">Backup:</label>
-          <input
-            type="number"
-            min="0"
-            value={selectedResources.backup}
-            onChange={(e) =>
-              setSelectedResources((prev) => ({ ...prev, backup: +e.target.value }))
-            }
-            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-blue-200 text-black"
-          />
-        </div>
+        <label className="block text-gray-700 font-medium mb-2">CPU:</label>
+        <input
+          type="number"
+          value={selectedResources.cpu}
+          onChange={(e) => setSelectedResources({ ...selectedResources, cpu: Number(e.target.value) })}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-blue-200 text-black"
+          placeholder="Enter CPU count"
+        />
       </div>
-      <button
-        onClick={handleCreateServer}
-        disabled={creating}
-        className="w-full p-3 bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-600 transition duration-300"
-      >
-        {creating ? <FaSpinner className="animate-spin inline-block mr-2" /> : 'Create Server'}
-      </button>
-
-      {showModal && (
-        <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50">
+      <div className="mb-4">
+        <label className="block text-gray-700 font-medium mb-2">RAM (MB):</label>
+        <input
+          type="number"
+          value={selectedResources.ram}
+          onChange={(e) => setSelectedResources({ ...selectedResources, ram: Number(e.target.value) })}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-blue-200 text-black"
+          placeholder="Enter RAM in MB"
+        />
+      </div>
+      <div className="mb-4">
+        <label className="block text-gray-700 font-medium mb-2">Disk (GB):</label>
+        <input
+          type="number"
+          value={selectedResources.disk}
+          onChange={(e) => setSelectedResources({ ...selectedResources, disk: Number(e.target.value) })}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-blue-200 text-black"
+          placeholder="Enter Disk size in GB"
+        />
+      </div>
+      <div className="mb-4">
+        <label className="block text-gray-700 font-medium mb-2">Backup (int):</label>
+        <input
+          type="number"
+          value={selectedResources.backup}
+          onChange={(e) => setSelectedResources({ ...selectedResources, backup: Number(e.target.value) })}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-blue-200 text-black"
+          placeholder="Enter Backup size in GB"
+        />
+      </div>
+      <div className="flex justify-center mb-6">
+        <button
+          onClick={handleCreateServer}
+          className="bg-green-500 text-white p-3 rounded-lg shadow-md hover:bg-green-600 disabled:opacity-50"
+          disabled={creating}
+        >
+          {creating ? 'Creating...' : 'Create Server'}
+        </button>
+      </div>
+      {error && (
+        <div className={`fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 ${showModal ? '' : 'hidden'}`}>
           <div className="bg-white p-6 rounded-lg shadow-lg text-center">
-            <MdError className="text-red-500 mb-4" size={50} />
-            <p className="text-lg text-gray-700">{error}</p>
-            <button
-              onClick={closeModal}
-              className="mt-6 px-6 py-3 bg-red-500 text-white rounded-lg font-semibold hover:bg-red-600 transition duration-300"
-            >
-              Close
-            </button>
+            <MdError className="text-red-500 mb-4 mx-auto" size={40} />
+            <p className="text-red-500 font-semibold">{error}</p>
+            <button onClick={closeModal} className="mt-4 text-blue-500 underline">Close</button>
           </div>
         </div>
       )}
-
-      {showSuccessModal && (
-        <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50">
+      {successMessage && (
+        <div className={`fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 ${showSuccessModal ? '' : 'hidden'}`}>
           <div className="bg-white p-6 rounded-lg shadow-lg text-center">
-            <FaCheckCircle className="text-green-500 mb-4 success-checkmark" size={50} />
-            <p className="text-lg text-gray-700">{successMessage}</p>
+            <FaCheckCircle className="text-green-500 mb-4 mx-auto success-checkmark" size={40} />
+            <p className="text-green-500 font-semibold">{successMessage}</p>
+            <button onClick={() => setShowSuccessModal(false)} className="mt-4 text-blue-500 underline">Close</button>
           </div>
         </div>
       )}

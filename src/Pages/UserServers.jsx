@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { auth, db } from '../firebase';
-import { FaServer, FaMemory, FaMicrochip, FaGoogleDrive, FaTools, FaTrashAlt } from 'react-icons/fa';
+import { FaServer, FaMemory, FaMicrochip, FaGoogleDrive, FaTools, FaTrashAlt, FaSpinner } from 'react-icons/fa';
 
 const UserServers = () => {
   const [servers, setServers] = useState([]);
@@ -9,6 +9,7 @@ const UserServers = () => {
   const [error, setError] = useState(null);
   const [selectedServer, setSelectedServer] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false); // New state for loading modal
 
   useEffect(() => {
     const fetchUserAndServers = async () => {
@@ -22,7 +23,7 @@ const UserServers = () => {
             const petroId = userData.petro;
 
             if (petroId) {
-              const response = await fetch(`/api/servers/${petroId}`);
+              const response = await fetch(`https://image.astralaxis.tech/servers/${petroId}`);
               const data = await response.json();
               setServers(data.data);
             } else {
@@ -47,22 +48,66 @@ const UserServers = () => {
 
   const handleDelete = async (serverId) => {
     try {
-      const response = await fetch(`/api/delete-server/${serverId}`, {
-        method: 'GET',
-      });
+      setIsDeleting(true); // Show loading modal
+      const user = auth.currentUser;
+      if (!user) {
+        setError('User is not authenticated');
+        return;
+      }
 
-      if (response.ok) {
-        setServers(servers.filter(server => server.attributes.id !== serverId));
+      const userDocRef = doc(db, 'users', user.uid);
+      const userDocSnap = await getDoc(userDocRef);
+
+      if (userDocSnap.exists()) {
+        const userData = userDocSnap.data();
+        const serverToDelete = servers.find(server => server.attributes.id === serverId);
+
+        if (!serverToDelete) {
+          setError('Server not found');
+          return;
+        }
+
+        // Access server-specific info using the server ID as the key
+        const serverInfoKey = `serverinfo.${serverId}`;
+
+        // Calculate the resources to give back
+        const updatedCPU = (userData.cpu || 0) + (serverToDelete.attributes.limits.cpu || 0);
+        const updatedMemory = (userData.ram || 0) + (serverToDelete.attributes.limits.memory || 0);
+        const updatedDisk = (userData.disk || 0) + (serverToDelete.attributes.limits.disk || 0);
+        const updatedServerSlots = (userData.slots || 0) + 1;
+
+        // Update the user's document in Firestore by deleting the specific server's info
+        await updateDoc(userDocRef, {
+          [serverInfoKey]: null, // Remove the specific server's info
+          cpu: updatedCPU,
+          ram: updatedMemory,
+          disk: updatedDisk,
+          slots: updatedServerSlots,
+        });
+
+        // Call the API to delete the server
+        const response = await fetch(`https://image.astralaxis.tech/delete-server/${serverId}`, {
+          method: 'GET',
+        });
+
+        if (response.ok) {
+          // Remove the server from the local state
+          setServers(servers.filter(server => server.attributes.id !== serverId));
+        } else {
+          setError('Failed to delete server');
+        }
       } else {
-        setError('Failed to delete server');
+        setError('User document does not exist');
       }
     } catch (error) {
       console.error('Error deleting server', error);
       setError('Error deleting server');
     } finally {
+      setIsDeleting(false); // Hide loading modal
       setIsModalOpen(false);
     }
   };
+
 
   const openModal = (server) => {
     setSelectedServer(server);
@@ -161,6 +206,15 @@ const UserServers = () => {
                 Delete
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {isDeleting && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="bg-red-700 p-6 rounded-lg shadow-lg text-white">
+            <FaSpinner className="animate-spin mr-2 inline-block" />
+            Deleting server... 
           </div>
         </div>
       )}

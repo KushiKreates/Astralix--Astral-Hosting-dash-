@@ -22,7 +22,7 @@ const Shop = () => {
   }, []);
 
   return (
-    <div className="flex h-200 bg-gray-800 text-white">
+    <div className="flex h-1200 bg-gray-800 text-white">
       {/* Mobile Sidebar */}
       {isMobile && (
         <>
