@@ -111,7 +111,7 @@ const EggsDisplay = () => {
         const thumbnailUrl = selectedEggData ? selectedEggData.imageUrl : '';
 
         // Send the purchase info as an embed to Discord webhook
-        await fetch('https://discord.com/api/webhooks/1273124019452907611/pzKI4YD-eWgTJLbs3T9nJCJctVKOZO73ZY04YKQ-ZWXmm2T3JInv90Z7eYKBCtMBfTsu', {
+        await fetch('', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
